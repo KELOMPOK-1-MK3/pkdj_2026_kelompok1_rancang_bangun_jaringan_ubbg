@@ -16,8 +16,14 @@ Metode: VLSM — subnet terbesar dilayani lebih dulu, sehingga ruang alamat terp
 | 7 | Sisa | — | /28 | 192.168.10.224 (dicadangkan) |
 | 8 | Zona server | 6 | /29 | 192.168.10.240 |
 
-Total terpakai: 64+64+32+32+16+16+8 = 232 alamat. Sisa 8 alamat di 192.168.10.232–239
-belum dipakai dan disisakan untuk pengembangan.
+Total **alamat host yang dapat dipakai**: 62+62+30+30+14+14+14+6 = 232 alamat.
+Kalau dihitung per blok, kedelapan blok itu menghabiskan 248 dari 256 alamat;
+yang tersisa **192.168.10.248–.255** (satu blok /29, 6 alamat host) dan
+disisakan untuk pengembangan.
+
+> Dua blok terakhir berbeda perannya: `192.168.10.224/28` **dicadangkan** untuk
+> perluasan VLAN di masa depan (belum dipakai perangkat apa pun), sedangkan
+> `192.168.10.240/29` sudah dipakai Zona Server.
 
 ## Tabel alamat per VLAN
 
