@@ -131,5 +131,20 @@ mkkl1031-klinik-network/
 | Tahap | Target | Status |
 |---|---|---|
 | Pertemuan 2 | Rencana proyek, repository, undangan kolaborator | Selesai |
-| Pertemuan 8 (UTS) | Topologi dasar terbentuk dan seluruh VLAN dikonfigurasi pada switch … | Belum dimulai |
-| Pertemuan 16 (UAS) | Model jaringan klinik yang lengkap dan dapat dijalankan pada perangkat lunak simulasi, ter … | Belum dimulai |
+| Pertemuan 8 (UTS) | Topologi dasar terbentuk dan seluruh VLAN dikonfigurasi pada switch | Belum dimulai |
+| Pertemuan 16 (UAS) | Model jaringan klinik lengkap dan dapat dijalankan pada perangkat lunak simulasi | Belum dimulai |
+
+Yang **sudah selesai di atas kertas**: tabel VLSM lengkap, konfigurasi tujuh
+perangkat, dan rencana pengujian sepuluh butir.
+
+Yang **wajib dikerjakan berikutnya** — semuanya butuh Cisco Packet Tracer:
+
+1. Bangun topologi di Packet Tracer, lalu **cocokkan nomor antarmuka** dengan
+   `src/configs/*.txt` (nomor di berkas masih contoh karena bergantung modul
+   yang dipasang).
+2. Simpan berkas simulasi ke `simulation/klinik-kesehatan.pkt`.
+3. Jalankan tabel pengujian di [`docs/pengujian.md`](docs/pengujian.md) dan isi
+   kolom bukti dengan tangkapan layar.
+
+Alamat di seluruh berkas sudah diperiksa konsisten dengan
+[`docs/pengalamatan-vlsm.md`](docs/pengalamatan-vlsm.md).
