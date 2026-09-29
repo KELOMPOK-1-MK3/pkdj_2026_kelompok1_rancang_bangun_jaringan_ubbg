@@ -9,17 +9,14 @@
 
 ## 1. Identitas Kelompok
 
-| No | Nama | NIM | Peran dalam Proyek |
+| No | Nama | NIM | Peran |
 |---|---|---|---|
-| 1 | Yogi Prasetya Sadewa | 23210060 | Ketua kelompok; perancangan topologi, skema pengalamatan VLSM, dan konfigurasi routing |
-| 2 | Asmarudin | 23210133 | Konfigurasi VLAN dan inter-VLAN routing pada core switch L3 |
-| 3 | Deski Taiza | 23210003 | Konfigurasi layanan server: DHCP, DNS, web, dan FTP |
-| 4 | Akhsanul Taqwim | 23210006 | Penerapan ACL pemisahan akses jaringan tamu dengan jaringan medis |
-| 5 | Wira | 23210045 | Pengujian konektivitas dan penyusunan tabel bukti pengujian |
-| 6 | Abadi | 23210004 | Perancangan dan pengujian skenario jalur cadangan (routing dinamis) |
-| 7 | Ferdyan Ardhani | 23210039 | Penyusunan tabel pengalamatan VLSM dan validasinya terhadap simulasi |
-| 8 | Muhammad Iqbal | 23210142 | Pengujian pembatasan akses dari sisi tamu maupun dari sisi medis |
-| 9 | Meriandi Wahyu Kurniawan | [NIM] | Dokumentasi, README, dan pengelolaan repository |
+| 1 | Paris Mursidan Aufal | 23210125 | Skema pengalamatan VLSM kedua gedung dan tabel pengalamatan |
+| 2 | Yogi Prasetya Sadewa | 23210060 | Ketua kelompok; perancangan topologi, konfigurasi server, dan integrasi simulasi |
+| 3 | M. Sidiq Prasetio | 23210075 | Konfigurasi VLAN dan inter-VLAN routing pada switch lapis tiga |
+| 4 | Deski Taiza | 23210003 | Routing dinamis antar-gedung (OSPF) dan jalur cadangan |
+| 5 | Wira | 23210045 | Aturan pembatasan akses ke server dan pengujian konektivitas |
+| 6 | T. Zain Wardana | 23210001 | Pengujian di Packet Tracer dan penyusunan tabel bukti |
 
 ## 2. Masalah dan Tujuan
 
@@ -88,14 +85,15 @@ Klinik kesehatan menyimpan data rekam medis yang bersifat rahasia, namun jaringa
 
 | Bagian yang dijanjikan selesai | Bentuk bukti pada Pertemuan 8 | Penanggung jawab |
 |---|---|---|
-| Topologi dasar terbentuk dan seluruh VLAN dikonfigurasi pada switch | Berkas simulasi yang dapat dijalankan dan daftar VLAN beserta port anggotanya | Asmarudin |
-| Skema pengalamatan VLSM lengkap beserta tabel alamat jaringan, broadcast, dan rentang host | Dokumen tabel pengalamatan yang cocok dengan konfigurasi pada simulasi | Yogi Prasetya Sadewa |
+| Topologi dua gedung terbentuk dan seluruh VLAN dikonfigurasi pada switch | Berkas simulasi yang dapat dijalankan dan daftar VLAN beserta port anggotanya | M. Sidiq Prasetio |
+| Skema pengalamatan VLSM kedua gedung lengkap beserta tabel alamat jaringan, broadcast, dan rentang host | Dokumen tabel pengalamatan yang cocok dengan konfigurasi pada simulasi | Paris Mursidan Aufal |
+| Server UBBG berada di salah satu gedung dan hanya dapat diakses dari jaringan privat | Konfigurasi alamat server dan bukti akses privat dari kedua gedung | Yogi Prasetya Sadewa |
 | Perangkat pada setiap VLAN memperoleh alamat otomatis dari server | Tabel hasil pembacaan alamat pada perangkat dari setiap VLAN | Deski Taiza |
-| Komunikasi antar-VLAN berjalan melalui core switch | Bukti pengujian konektivitas antar-VLAN beserta jalur yang dilalui | Asmarudin |
-| Pembatasan akses dari jaringan tamu menuju jaringan medis berjalan | Bukti pengujian yang memperlihatkan akses tamu ditolak dan akses lain tetap berjalan | Akhsanul Taqwim |
-| Tabel pengalamatan VLSM dicocokkan ulang dengan konfigurasi pada simulasi | Dokumen tabel pengalamatan versi terkoreksi beserta catatan pemeriksaan | Abadi |
-| Jalur cadangan diuji dengan memutus satu jalur penghubung | Hasil pemeriksaan jalur sebelum dan sesudah satu jalur diputus | Ferdyan Ardhani |
-| Repository aktif: berkas simulasi, dokumentasi, dan riwayat commit | Riwayat commit mingguan dan tautan repository | Meriandi Wahyu Kurniawan |
+| Komunikasi antar-VLAN dan antar-gedung berjalan melalui switch lapis tiga | Bukti pengujian konektivitas antar-VLAN beserta jalur yang dilalui | M. Sidiq Prasetio |
+| Jalur cadangan antar-gedung diuji dengan memutus satu jalur penghubung | Hasil pemeriksaan jalur sebelum dan sesudah satu jalur diputus | Deski Taiza |
+| Pembatasan akses dari jaringan tamu menuju jaringan privat berjalan | Bukti pengujian yang memperlihatkan akses tamu ditolak dan akses lain tetap berjalan | Wira |
+| Seluruh skenario pengujian dijalankan di simulasi dan buktinya dikumpulkan | Berkas simulasi beserta tabel bukti pengujian terisi | T. Zain Wardana |
+| Repository aktif: berkas simulasi, dokumentasi, dan riwayat commit | Riwayat commit mingguan dan tautan repository | Paris Mursidan Aufal |
 
 ## 6. Rencana Pencapaian UAS (Pertemuan 16) dan Skenario Demonstrasi
 

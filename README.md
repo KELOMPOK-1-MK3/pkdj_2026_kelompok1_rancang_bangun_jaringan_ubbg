@@ -11,19 +11,15 @@ Rancangan dan simulasi jaringan untuk klinik kesehatan kecil satu lantai. Setiap
 
 | No | Nama | NIM | Peran |
 |---|---|---|---|
-| 1 | Yogi Prasetya Sadewa | 23210060 | Ketua kelompok; perancangan topologi, skema pengalamatan VLSM, dan konfigurasi routing |
-| 2 | Asmarudin | 23210133 | Konfigurasi VLAN dan inter-VLAN routing pada core switch L3 |
-| 3 | Deski Taiza | 23210003 | Konfigurasi layanan server: DHCP, DNS, web, dan FTP |
-| 4 | Akhsanul Taqwim | 23210006 | Penerapan ACL pemisahan akses jaringan tamu dengan jaringan medis |
-| 5 | Wira | 23210045 | Pengujian konektivitas dan penyusunan tabel bukti pengujian |
-| 6 | Abadi | 23210004 | Perancangan dan pengujian skenario jalur cadangan (routing dinamis) |
-| 7 | Ferdyan Ardhani | 23210039 | Penyusunan tabel pengalamatan VLSM dan validasinya terhadap simulasi |
-| 8 | Muhammad Iqbal | 23210142 | Pengujian pembatasan akses dari sisi tamu maupun dari sisi medis |
-| 9 | Meriandi Wahyu Kurniawan | [NIM] | Dokumentasi, README, dan pengelolaan repository |
+| 1 | Paris Mursidan Aufal | 23210125 | Skema pengalamatan VLSM kedua gedung dan tabel pengalamatan |
+| 2 | Yogi Prasetya Sadewa | 23210060 | Ketua kelompok; perancangan topologi, konfigurasi server, dan integrasi simulasi |
+| 3 | M. Sidiq Prasetio | 23210075 | Konfigurasi VLAN dan inter-VLAN routing pada switch lapis tiga |
+| 4 | Deski Taiza | 23210003 | Routing dinamis antar-gedung (OSPF) dan jalur cadangan |
+| 5 | Wira | 23210045 | Aturan pembatasan akses ke server dan pengujian konektivitas |
+| 6 | T. Zain Wardana | 23210001 | Pengujian di Packet Tracer dan penyusunan tabel bukti |
 
-> Kelompok berjumlah 9 orang; panduan menetapkan 4–5 orang sehingga jumlah ini
-> dimintakan persetujuan dosen pada pertemuan ke-2. Setiap anggota melakukan
-> commit dari akun masing-masing.
+> Kelompok berjumlah 6 orang; setiap anggota mengerjakan satu bagian di tiap mata
+> kuliah dan melakukan commit dari akun GitHub masing-masing.
 
 ## Rencana Proyek
 
@@ -86,7 +82,7 @@ ftp 192.168.10.242                # server berkas pencadangan
 ## Struktur Repository
 
 ```
-mkkl1031-klinik-network/
+pkdj_2026_kelompok1_rancang_bangun_jaringan_ubbg/
 ├── README.md
 ├── docs/
 │   ├── rencana-proyek.md
