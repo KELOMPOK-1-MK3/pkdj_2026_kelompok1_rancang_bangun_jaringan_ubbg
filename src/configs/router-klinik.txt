@@ -28,15 +28,22 @@ configure terminal
   no shutdown
  exit
 
- ! --- VLAN 99 (tamu) tidak boleh keluar melalui router ini ---
+ ! --- rute bawaan ke internet ---
  ip route 0.0.0.0 0.0.0.0 10.0.0.1
 
  ! --- NAT overload: alamat privat keluar memakai alamat antarmuka luar ---
+ ! Catatan: ACL ini menentukan siapa yang boleh keluar lewat NAT. Pemisahan
+ ! tamu dari jaringan medis TIDAK dilakukan di sini, melainkan oleh ACL
+ ! BATAS_TAMU pada Core-Switch-L3 — jadi VLAN 99 tetap diizinkan keluar ke
+ ! internet (sesuai README dan docs/konfigurasi.md), sementara aksesnya ke
+ ! VLAN internal sudah ditutup lebih dulu di core switch.
  ip access-list standard DAPAT_KELUAR
   permit 192.168.10.0 0.0.0.63     ! VLAN 10, 20 (pendaftaran, poliklinik)
   permit 192.168.10.128 0.0.0.31   ! VLAN 30, 40 (farmasi, laboratorium)
   permit 192.168.10.192 0.0.0.15   ! VLAN 50 (manajemen)
-  deny   192.168.10.208 0.0.0.15   ! VLAN 99 (tamu) — tidak diberi akses
+  permit 192.168.10.208 0.0.0.15   ! VLAN 99 (tamu) — internet saja, ke VLAN internal sudah ditolak BATAS_TAMU
+  permit 192.168.10.240 0.0.0.7    ! VLAN 100 (server) — pembaruan sistem dan DNS luar
+  deny   any
  exit
  ip nat inside source list DAPAT_KELUAR interface GigabitEthernet0/0/0 overload
 

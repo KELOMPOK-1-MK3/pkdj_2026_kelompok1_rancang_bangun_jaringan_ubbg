@@ -59,6 +59,26 @@ Seluruh VLAN internal lain ditolak. Catatan penting: aturan ini **harus** diuji
 dengan `ping` dari perangkat tamu ke perangkat poliklinik — kalau tidak,
 ACL-nya hanya ada di atas kertas.
 
+### Dua ACL dengan tugas berbeda — jangan tertukar
+
+Ada dua ACL yang gampang dikira sama padahal berbeda tempat dan tujuan:
+
+| ACL | Tempat | Tugas |
+|---|---|---|
+| `BATAS_TAMU` | Core-Switch-L3, `Vlan99` arah masuk | Memisahkan tamu dari VLAN medis. Bukan urusan NAT. |
+| `DAPAT_KELUAR` | Router-Klinik, dipakai `ip nat inside source list` | Menentukan VLAN mana yang alamatnya boleh diterjemahkan keluar. |
+
+Konsekuensinya, VLAN 99 **harus tetap ada di `DAPAT_KELUAR`**: tamu memang tidak
+boleh masuk jaringan medis, tetapi justru harus bisa keluar ke internet — itu
+tujuan pemasangan WiFi tamu. Pemisahannya sudah dikerjakan `BATAS_TAMU` di core
+switch, sebelum paketnya sempat naik ke router. Kalau VLAN 99 ikut ditolak di
+`DAPAT_KELUAR`, tamu tidak mendapat internet sama sekali dan pengujian 4b di
+[`pengujian.md`](pengujian.md) akan gagal tanpa sebab yang jelas.
+
+VLAN 100 (Server) juga perlu diizinkan keluar untuk pembaruan sistem dan
+penerusan DNS ke luar. ACL diakhiri `deny any` eksplisit supaya VLAN yang tidak
+disebut tidak diam-diam mendapat akses.
+
 ### Waktu kirim pada node IoT
 
 Bukan bagian konfigurasi jaringan, tetapi berpengaruh pada pengukuran: Node 2
