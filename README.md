@@ -27,7 +27,7 @@ Rancangan dan simulasi jaringan untuk klinik kesehatan kecil satu lantai. Setiap
 
 ## Rencana Proyek
 
-- Google Docs (dibagikan kepada dosen dengan akses komentar) — tautan: `[ISI TAUTAN]`
+- Google Docs (dibagikan kepada dosen dengan akses komentar) — tautan: [MKKL1031 — Jaringan Klinik Kesehatan Kecil](https://docs.google.com/document/d/1krusm61k6EZOCbH7tlWy59acsWTg5411hK5TJ2IUZFU/edit)
 - Salinan di repository: [`docs/rencana-proyek.md`](docs/rencana-proyek.md)
 
 ## Cara Menjalankan
