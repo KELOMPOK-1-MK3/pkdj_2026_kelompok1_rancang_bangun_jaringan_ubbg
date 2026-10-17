@@ -1,0 +1,43 @@
+# ============================================================================
+# Server0 — Server UBBG (Server-PT) — Gedung A, VLAN 100
+# MKKL1031 — Jaringan UBBG Dua Gedung
+#
+# Peran: menyimpan data penting kampus. Hanya boleh diakses dari jaringan
+#        internal; jaringan tamu ditolak oleh ACL 110 di R-GEDUNG-A.
+#
+# Server-PT tidak punya CLI seperti router/switch. Konfigurasinya diatur lewat
+# tab Desktop / Services pada Packet Tracer. Isi di bawah adalah pengaturan
+# yang benar-benar dipakai pada simulasi.
+# ============================================================================
+
+## Pengalamatan (Desktop > IP Configuration)
+
+IP Address        : 192.168.10.146
+Subnet Mask       : 255.255.255.248   (/29)
+Default Gateway   : 192.168.10.145    (sub-interface G0/0.100 R-GEDUNG-A)
+DNS Server        : 192.168.10.146    (menunjuk ke dirinya sendiri)
+
+Catatan: alamat ini berada di dalam blok 192.168.10.144/29 (VLAN 100).
+Alamat jaringan .144 dan gerbang .145 tidak boleh dipakai host, sehingga
+alamat pertama yang bisa dipakai adalah .146.
+
+## Port switch
+
+Tersambung ke MLS-GEDUNG-A port FastEthernet0/4 (access VLAN 100).
+
+## Layanan yang diaktifkan (Desktop > Services)
+
+| Layanan | Status  | Keterangan |
+|---|---|---|
+| HTTP    | On | Portal web internal. Halaman bawaan Packet Tracer dipakai untuk pengujian skenario 4. |
+| HTTPS   | On | Diaktifkan bersama HTTP; tidak dipakai pada pengujian. |
+| DNS     | On | Untuk mencoba penamaan internal (skenario 4 alternatif). Catatan: pada pengujian akhir nama domain belum dipetakan, sehingga akses diuji memakai alamat IP langsung. |
+
+## Hasil pengujian yang melibatkan server ini
+
+| Dari | Ke | Hasil |
+|---|---|---|
+| PC0 (VLAN 10, internal) | 192.168.10.146 (ping) | 4/4 balasan, 0% loss |
+| PC0 (VLAN 10, internal) | http://192.168.10.146 | Halaman web terbuka |
+| PC8 (VLAN 11, Gedung B, internal) | 192.168.10.146 (ping) | 4/4 balasan |
+| PC7 (VLAN 99, tamu) | 192.168.10.146 (ping) | 0/4, 100% loss — diblokir ACL 110 |

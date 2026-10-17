@@ -1,0 +1,129 @@
+# ============================================================================
+# MLS-GEDUNG-B — Multilayer Switch Gedung B (Cisco 3560-24PS)
+# MKKL1031 — Jaringan UBBG Dua Gedung
+#
+# PERAN: switch lapis tiga yang menjadi pusat inter-VLAN routing untuk
+#        Gedung B. Berbeda dari Gedung A (yang bertipe 2960), model di sini
+#        benar-benar 3560 sehingga SVI berjalan normal. Karena itu semua
+#        VLAN Gedung B punya gateway di switch ini, bukan di router.
+#
+# Salinan ini diambil dari `show running-config` perangkat yang sudah berjalan
+# dan diuji di Packet Tracer.
+# ============================================================================
+
+Current configuration : 1675 bytes
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname MLS-GEDUNG-B
+!
+no profinet
+!
+ip routing
+!
+spanning-tree mode pvst
+!
+! Fa0/1 = ke R-GEDUNG-B (port routed, bukan trunk)
+interface FastEthernet0/1
+ no switchport
+ ip address 172.16.20.2 255.255.255.252
+ duplex auto
+ speed auto
+!
+! Fa0/2 = trunk ke SW-B1 (VLAN 11, 21). Di Packet Tracer encapsulation
+! terdeteksi otomatis sebagai n-802.1q, jadi perintah `encapsulation dot1q`
+! tidak muncul di running-config — tetapi `show interfaces trunk` membuktikan
+! port ini trunking.
+interface FastEthernet0/2
+ switchport trunk allowed vlan 11,21
+ switchport mode trunk
+!
+! Fa0/3 = trunk ke SW-B2 (VLAN 31, 199)
+interface FastEthernet0/3
+ switchport trunk allowed vlan 31,199
+ switchport mode trunk
+!
+interface FastEthernet0/4
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+!
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+! ---- SVI: gateway tiap VLAN Gedung B ----
+interface Vlan11
+ mac-address 00d0.bcc4.9001
+ ip address 192.168.11.1 255.255.255.192
+!
+interface Vlan21
+ mac-address 00d0.bcc4.9002
+ ip address 192.168.11.65 255.255.255.224
+!
+interface Vlan31
+ mac-address 00d0.bcc4.9003
+ ip address 192.168.11.97 255.255.255.240
+!
+interface Vlan199
+ mac-address 00d0.bcc4.9004
+ ip address 192.168.11.113 255.255.255.240
+!
+ip default-gateway 172.16.20.1
+ip classless
+ip route 0.0.0.0 0.0.0.0 172.16.20.1
+!
+ip flow-export version 9
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+end

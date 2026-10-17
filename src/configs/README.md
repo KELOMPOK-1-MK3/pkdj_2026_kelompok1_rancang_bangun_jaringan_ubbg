@@ -1,37 +1,53 @@
 # Salinan Konfigurasi
 
 Folder ini menyimpan salinan konfigurasi setiap perangkat dalam bentuk teks,
-sehingga perubahannya dapat ditelusuri melalui riwayat commit.
+supaya perubahannya bisa ditelusuri lewat riwayat commit.
 
-| Berkas | Perangkat |
-|---|---|
-| `router-klinik.txt` | Router tepi, penghubung ke internet, NAT, OSPF |
-| `core-switch-l3.txt` | Core switch lapis tiga, pusat routing antar-VLAN, DHCP relay, ACL |
-| `access-switch-1.txt` | Access switch zona pendaftaran dan poliklinik |
-| `access-switch-2.txt` | Access switch zona farmasi, laboratorium, manajemen |
-| `access-switch-3.txt` | Access switch zona tamu |
-| `switch-server.txt` | Switch zona server |
-| `server-layanan.txt` | Daftar pengaturan layanan DHCP, DNS, web, dan FTP |
+Seluruh berkas di sini **diambil dari `show running-config` perangkat yang
+sungguh berjalan di Packet Tracer** — bukan rancangan di atas kertas. Jadi isi
+berkas ini dan isi simulasi tidak boleh berbeda.
 
-## Status
+| Berkas | Perangkat | Peran |
+|---|---|---|
+| `router-gedung-a.txt` | R-GEDUNG-A (2911) | Gerbang Gedung A; router-on-a-stick untuk VLAN 10/20/30/99/100; titik pemasangan ACL tamu |
+| `router-gedung-b.txt` | R-GEDUNG-B (2911) | Penghubung Gedung B ke Gedung A (murni transit) |
+| `multilayer-switch-gedung-a.txt` | MLS-GEDUNG-A (3560-24PS) | Transit lapis dua murni — tidak ada SVI |
+| `multilayer-switch-gedung-b.txt` | MLS-GEDUNG-B (3560-24PS) | Pusat inter-VLAN routing Gedung B (SVI 11/21/31/199) |
+| `access-switch-a1.txt` | SW-A1 (2960-24TT) | VLAN 10 Kelas, VLAN 20 Laboratorium |
+| `access-switch-a2.txt` | SW-A2 (2960-24TT) | VLAN 30 Dosen/Staf, VLAN 99 Tamu |
+| `access-switch-b1.txt` | SW-B1 (2960-24TT) | VLAN 11 Kelas, VLAN 21 Laboratorium |
+| `access-switch-b2.txt` | SW-B2 (2960-24TT) | VLAN 31 Dosen/Staf, VLAN 199 Tamu |
+| `server-ubbg.txt` | Server0 (Server-PT) | Pengaturan IP dan layanan server |
 
-**Sudah terisi, belum diuji di Packet Tracer.** Konfigurasi disusun mengikuti
-alamat pada [`docs/pengalamatan-vlsm.md`](../../docs/pengalamatan-vlsm.md).
+## Dua hal yang berubah dari rancangan awal
 
-Yang **wajib dicocokkan ulang** setelah topologi dibangun, karena tidak dapat
-dipastikan tanpa perangkatnya:
+Keduanya ditemukan saat pengujian, dan sudah tercermin di berkas di atas.
 
-1. **Nomor antarmuka.** Berkas memakai penomoran contoh (`GigabitEthernet0/0/1`,
-   `GigabitEthernet1/0/2`, `FastEthernet0/2`). Nomor sebenarnya bergantung pada
-   modul yang dipasang di Packet Tracer.
-2. **`ip routing`** pada Catalyst 3560 — perintah ini hanya berlaku pada model
-   berfitur lapis tiga.
-3. **`ip dhcp relay information trust-all`** — perintah ini tidak ada pada
-   sebagian versi IOS lama; bila ditolak, cukup hapus dan andalkan
-   `ip helper-address`.
-4. **`GANTI_SANDI_INI`** pada `router-klinik.txt` dan `server-layanan.txt` diganti
-   dengan sandi sungguhan. Sandi tidak boleh ikut masuk ke repository publik.
+### 1. MLS-GEDUNG-A tidak bisa `ip routing`
 
-Setelah diuji, perbarui berkas ini dan `docs/konfigurasi.md` dengan hasil
-`show running-config` yang sesungguhnya — jangan biarkan salinan dan perangkat
-berbeda isi.
+Rancangan awal menaruh pusat inter-VLAN routing di MLS-GEDUNG-A. Saat
+dijalankan, switch itu menolak `ip routing` dan SVI-nya tidak pernah muncul —
+model yang terpasang berperilaku seperti WS-C2960 (lapis dua), bukan 3560.
+
+**Akibatnya:** inter-VLAN routing Gedung A dipindahkan ke R-GEDUNG-A memakai
+sub-interface (`router-on-a-stick`), dan MLS-GEDUNG-A menjadi transit lapis dua
+murni tanpa SVI. Inter-VLAN routing Gedung B tetap di MLS-GEDUNG-B karena
+model di sana benar-benar 3560 dan SVI-nya jalan normal.
+
+### 2. Jalur cadangan memakai floating static, bukan routing dinamis
+
+Rancangan awal menyebut routing dinamis antar-gedung. Yang dipakai di simulasi
+adalah **static route dengan administrative distance** — rute utama distance 1,
+rute cadangan distance 200. Perpindahan terjadi langsung saat status antarmuka
+turun, tanpa menunggu timer protokol routing.
+
+## Catatan teknis
+
+- **Nomor antarmuka sudah sesuai perangkat sungguhan.** Tidak perlu dicocokkan
+  ulang; berkas ini hasil salinan langsung.
+- **`encapsulation dot1q` tidak muncul di running-config beberapa port trunk.**
+  Pada model 2960, encapsulation terdeteksi otomatis (`n-802.1q`). Yang
+  membuktikan port itu trunk adalah `show interfaces trunk`, bukan ada-tidaknya
+  baris encapsulation.
+- **Tidak ada sandi di berkas ini.** Sandi perangkat tidak ikut masuk
+  repository publik.

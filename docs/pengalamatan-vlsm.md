@@ -1,82 +1,93 @@
-# VLSM — Alokasi Alamat Jaringan Klinik Kesehatan Kecil
+# Pengalamatan VLSM
 
-Blok induk: **192.168.10.0/24** (254 alamat host).
-Metode: VLSM — subnet terbesar dilayani lebih dulu, sehingga ruang alamat terpakai efisien.
+Pembagian alamat memakai cara VLSM. Artinya, blok alamat dibagi sesuai
+kebutuhan tiap bagian, bukan dibagi rata. Bagian yang butuh banyak komputer
+dapat jatah besar, yang butuh sedikit dapat jatah kecil. Pembagian dimulai dari
+yang paling besar, supaya alamatnya tidak cepat habis.
 
-## Urutan kebutuhan
+## Gedung A
 
-| # | Segmen | Perkiraan host | Prefix | Alamat jaringan |
-|---|---|---|---|---|
-| 1 | VLAN 10 — Pendaftaran | 40 | /26 | 192.168.10.0 |
-| 2 | VLAN 20 — Poliklinik | 40 | /26 | 192.168.10.64 |
-| 3 | VLAN 30 — Farmasi | 20 | /27 | 192.168.10.128 |
-| 4 | VLAN 40 — Laboratorium | 20 | /27 | 192.168.10.160 |
-| 5 | VLAN 50 — Manajemen | 10 | /28 | 192.168.10.192 |
-| 6 | VLAN 99 — Tamu | 10 | /28 | 192.168.10.208 |
-| 7 | Sisa | — | /28 | 192.168.10.224 (dicadangkan) |
-| 8 | Zona server | 6 | /29 | 192.168.10.240 |
-
-Total **alamat host yang dapat dipakai**: 62+62+30+30+14+14+14+6 = 232 alamat.
-Kalau dihitung per blok, kedelapan blok itu menghabiskan 248 dari 256 alamat;
-yang tersisa **192.168.10.248–.255** (satu blok /29, 6 alamat host) dan
-disisakan untuk pengembangan.
-
-> Dua blok terakhir berbeda perannya: `192.168.10.224/28` **dicadangkan** untuk
-> perluasan VLAN di masa depan (belum dipakai perangkat apa pun), sedangkan
-> `192.168.10.240/29` sudah dipakai Zona Server.
-
-## Tabel alamat per VLAN
-
-| VLAN | Nama | Prefix | Alamat jaringan | Gateway (SVI Core-Switch-L3) | Rentang DHCP | Siaran |
+| Bagian | Alamat jaringan | Prefix | Alamat gerbang | Alamat siaran | Host bisa dipakai | VLAN |
 |---|---|---|---|---|---|---|
-| 10 | Pendaftaran | /26 | 192.168.10.0 | 192.168.10.1 | .10 – .50 | 192.168.10.63 |
-| 20 | Poliklinik | /26 | 192.168.10.64 | 192.168.10.65 | .74 – .114 | 192.168.10.127 |
-| 30 | Farmasi | /27 | 192.168.10.128 | 192.168.10.129 | .138 – .158 | 192.168.10.159 |
-| 40 | Laboratorium | /27 | 192.168.10.160 | 192.168.10.161 | .170 – .190 | 192.168.10.191 |
-| 50 | Manajemen | /28 | 192.168.10.192 | 192.168.10.193 | .202 – .212 | 192.168.10.207 |
-| 99 | Tamu | /28 | 192.168.10.208 | 192.168.10.209 | .218 – .222 | 192.168.10.223 |
-| — | Server | /29 | 192.168.10.240 | 192.168.10.241 | statis | 192.168.10.247 |
+| Kelas | 192.168.10.0 | /26 | 192.168.10.1 | 192.168.10.63 | 62 | 10 |
+| Laboratorium | 192.168.10.64 | /27 | 192.168.10.65 | 192.168.10.95 | 30 | 20 |
+| Dosen dan Staf | 192.168.10.96 | /28 | 192.168.10.97 | 192.168.10.111 | 14 | 30 |
+| Tamu | 192.168.10.112 | /28 | 192.168.10.113 | 192.168.10.127 | 14 | 99 |
+| Zona Server | 192.168.10.144 | /29 | 192.168.10.145 | 192.168.10.151 | 6 | 100 |
 
-**Rumus yang dipakai:** jumlah host per prefix = 2^(32-prefix) − 2.
-Contoh /26 → 2^6 − 2 = 62 host; gateway memakai alamat pertama yang tersedia.
+## Gedung B
 
-> Gateway dan DHCP: alamat .1, .65, .129, .161, .193, .209, .241 dipakai gateway SVI
-> dan **dikecualikan** dari kumpulan DHCP, begitu pula alamat server layanan.
+| Bagian | Alamat jaringan | Prefix | Alamat gerbang | Alamat siaran | Host bisa dipakai | VLAN |
+|---|---|---|---|---|---|---|
+| Kelas | 192.168.11.0 | /26 | 192.168.11.1 | 192.168.11.63 | 62 | 11 |
+| Laboratorium | 192.168.11.64 | /27 | 192.168.11.65 | 192.168.11.95 | 30 | 21 |
+| Dosen dan Staf | 192.168.11.96 | /28 | 192.168.11.97 | 192.168.11.111 | 14 | 31 |
+| Tamu | 192.168.11.112 | /28 | 192.168.11.113 | 192.168.11.127 | 14 | 199 |
 
-## Alamat statis perangkat
+## Jalur antar-perangkat
 
-| Perangkat | Antarmuka | Alamat |
+| Keperluan | Alamat jaringan | Prefix | Ujung A | Ujung B |
+|---|---|---|---|---|
+| Jalur utama antar-gedung | 10.0.0.0 | /30 | R-GEDUNG-A G0/1 = 10.0.0.1 | R-GEDUNG-B G0/1 = 10.0.0.2 |
+| Jalur cadangan antar-gedung | 172.16.30.0 | /30 | R-GEDUNG-A G0/2 = 172.16.30.1 | R-GEDUNG-B G0/2 = 172.16.30.2 |
+| R-GEDUNG-A ↔ MLS-GEDUNG-A | 172.16.10.0 | /30 | R-GEDUNG-A G0/0 = 172.16.10.1 | — |
+| R-GEDUNG-B ↔ MLS-GEDUNG-B | 172.16.20.0 | /30 | R-GEDUNG-B G0/0 = 172.16.20.1 | MLS-GEDUNG-B Fa0/1 = 172.16.20.2 |
+
+> Catatan: pada simulasi, alamat `172.16.10.0/30` tidak lagi dipakai sebagai
+> tautan ber-IP. R-GEDUNG-A tersambung ke MLS-GEDUNG-A lewat tautan **trunk**,
+> dan setiap VLAN Gedung A mendapat sub-interface tersendiri di R-GEDUNG-A
+> (`router-on-a-stick`). Pasangan alamat ini disimpan sebagai catatan
+> pengalamatan tautan manajemen.
+
+## Tabel alamat perangkat
+
+### PC di Gedung A
+
+| PC | VLAN | Alamat IP | Subnet mask | Gerbang |
+|---|---|---|---|---|
+| PC0 | 10 | 192.168.10.10 | 255.255.255.192 | 192.168.10.1 |
+| PC1 | 10 | 192.168.10.11 | 255.255.255.192 | 192.168.10.1 |
+| PC2 | 10 | 192.168.10.12 | 255.255.255.192 | 192.168.10.1 |
+| PC3 | 10 | 192.168.10.13 | 255.255.255.192 | 192.168.10.1 |
+| PC4 | 20 | 192.168.10.66 | 255.255.255.224 | 192.168.10.65 |
+| PC5 | 20 | 192.168.10.67 | 255.255.255.224 | 192.168.10.65 |
+| PC6 | 30 | 192.168.10.98 | 255.255.255.240 | 192.168.10.97 |
+| PC7 | 99 | 192.168.10.114 | 255.255.255.240 | 192.168.10.113 |
+
+### PC di Gedung B
+
+| PC | VLAN | Alamat IP | Subnet mask | Gerbang |
+|---|---|---|---|---|
+| PC8 | 11 | 192.168.11.10 | 255.255.255.192 | 192.168.11.1 |
+| PC9 | 11 | 192.168.11.11 | 255.255.255.192 | 192.168.11.1 |
+| PC10 | 11 | 192.168.11.12 | 255.255.255.192 | 192.168.11.1 |
+| PC11 | 11 | 192.168.11.13 | 255.255.255.192 | 192.168.11.1 |
+| PC12 | 21 | 192.168.11.66 | 255.255.255.224 | 192.168.11.65 |
+| PC13 | 21 | 192.168.11.67 | 255.255.255.224 | 192.168.11.65 |
+| PC14 | 31 | 192.168.11.98 | 255.255.255.240 | 192.168.11.97 |
+| PC15 | 199 | 192.168.11.114 | 255.255.255.240 | 192.168.11.113 |
+
+### Perangkat jaringan dan server
+
+| Perangkat | Alamat | Keterangan |
 |---|---|---|
-| Router-Klinik | Gig0/0/0 (ke internet) | DHCP dari penyedia / 10.0.0.2 pada simulasi |
-| Router-Klinik | Gig0/0/1 (ke Core-Switch-L3) | 172.16.1.1/30 |
-| Core-Switch-L3 | Gig1/0/1 (ke Router-Klinik) | 172.16.1.2/30 |
-| Core-Switch-L3 | Vlan 10–99 | masing-masing gateway pada tabel di atas |
-| Server-Layanan | FastEthernet0 | 192.168.10.242/29 |
+| R-GEDUNG-A G0/0.10 | 192.168.10.1 | Gerbang VLAN 10 |
+| R-GEDUNG-A G0/0.20 | 192.168.10.65 | Gerbang VLAN 20 |
+| R-GEDUNG-A G0/0.30 | 192.168.10.97 | Gerbang VLAN 30 |
+| R-GEDUNG-A G0/0.99 | 192.168.10.113 | Gerbang VLAN 99 |
+| R-GEDUNG-A G0/0.100 | 192.168.10.145 | Gerbang VLAN 100 |
+| MLS-GEDUNG-B Vlan11 | 192.168.11.1 | Gerbang VLAN 11 |
+| MLS-GEDUNG-B Vlan21 | 192.168.11.65 | Gerbang VLAN 21 |
+| MLS-GEDUNG-B Vlan31 | 192.168.11.97 | Gerbang VLAN 31 |
+| MLS-GEDUNG-B Vlan199 | 192.168.11.113 | Gerbang VLAN 199 |
+| Server0 | 192.168.10.146 | Server UBBG, VLAN 100 |
 
-## Rencana routing
+## Cara membaca tabel ini
 
-- **Router-Klinik ↔ Core-Switch-L3:** tautan /30 di 172.16.1.0/30.
-- **OSPF area 0:** keduanya mengumumkan jaringan yang dimiliki; VLAN internal
-  diumumkan oleh Core-Switch-L3, jaringan luar oleh Router-Klinik.
-- **Rute bawaan:** Router-Klinik memakai rute bawaan ke internet, lalu
-  mengumumkannya ke OSPF supaya Core-Switch-L3 ikut mengarahkan trafik keluar.
-- **NAT (overload):** diterapkan pada antarmuka luar Router-Klinik agar alamat
-  privat 192.168.10.0/24 dan 172.16.1.0/30 dapat keluar.
+`192.168.10.0 /26` artinya ada 64 alamat. Dua di antaranya tidak bisa dipakai
+komputer — satu untuk alamat jaringan dan satu untuk alamat siaran — sehingga
+tersisa 62. Alamat paling awal di tiap bagian dipakai sebagai pintu keluar
+(gerbang), misalnya `192.168.10.1`.
 
-## Rencana VLAN dan port
-
-| VLAN | Nama | Zona |
-|---|---|---|
-| 10 | Pendaftaran | SW-Access-1 |
-| 20 | Poliklinik | SW-Access-1 |
-| 30 | Farmasi | SW-Access-2 |
-| 40 | Laboratorium | SW-Access-2 |
-| 50 | Manajemen | SW-Access-2 |
-| 99 | Tamu | SW-Access-3 |
-| 100 | Server | SW-Server |
-
-Port trunk 802.1Q dipakai pada tautan switch-ke-switch: VLAN 10, 20, 30, 40, 50,
-99, 100 dilewatkan seluruhnya, VLAN 1 dikeluarkan (`switchport trunk native vlan 999`
-dengan VLAN 999 sebagai VLAN buangan) supaya trafik tak bertag tidak tercampur.
-
-Port ke perangkat pengguna disetel **access** sesuai VLAN zona masing-masing.
+Blok `/29` untuk zona server memberi 8 alamat, jadi 6 yang bisa dipakai.
+Alamat pertama yang tersedia adalah `192.168.10.146`; itulah alamat Server0.

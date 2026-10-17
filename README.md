@@ -1,11 +1,11 @@
-# Jaringan Klinik Kesehatan Kecil — Segmentasi VLAN, Inter-VLAN Routing, OSPF, dan Layanan Server
+# Rancang Bangun Jaringan UBBG Dua Gedung — VLAN, Inter-VLAN Routing, Pembatasan Akses, dan Jalur Cadangan
 
 **Mata kuliah:** Pemodelan Komunikasi Data dan Jaringan (MKKL1031) · Semester 7
 **Program Studi Ilmu Komputer — Fakultas Sains, Teknologi dan Ilmu Kesehatan**
 **Universitas Bina Bangsa Getsempena**
 **Dosen Pengampu:** Ahmad Mujahid Abdurrahman, S.Kom, M.T.
 
-Rancangan dan simulasi jaringan untuk klinik kesehatan kecil satu lantai. Setiap zona dipisahkan ke VLAN tersendiri — pendaftaran, rekam medis, dokter, tamu, server, dan manajemen — lalu dihubungkan melalui inter-VLAN routing pada core switch lapis tiga. Routing dinamis menghubungkan jaringan klinik dengan jalur internet, sementara aturan pembatasan akses menutup jalan dari WiFi tamu menuju jaringan rekam medis. Empat layanan server disiapkan dan diuji: pengalamatan otomatis, penamaan internal, portal web, dan server berkas untuk pencadangan.
+Rancangan dan simulasi jaringan yang menghubungkan dua gedung kuliah UBBG. Server kampus yang menyimpan data penting diletakkan di Gedung A dan hanya boleh diakses dari jaringan internal — jaringan tamu ditolak. Jaringan dipisah per keperluan memakai VLAN, dihubungkan dengan inter-VLAN routing, dan kedua gedung disambung dua jalur supaya jaringan tetap jalan saat jalur utama terputus. Seluruh rancangan dijalankan dan diuji di Cisco Packet Tracer.
 
 ## Anggota Kelompok
 
@@ -23,24 +23,44 @@ Rancangan dan simulasi jaringan untuk klinik kesehatan kecil satu lantai. Setiap
 
 ## Rencana Proyek
 
-- Google Docs (dibagikan kepada dosen dengan akses komentar) — tautan: [MKKL1031 — Jaringan Klinik Kesehatan Kecil](https://docs.google.com/document/d/1krusm61k6EZOCbH7tlWy59acsWTg5411hK5TJ2IUZFU/edit)
+- Google Docs (dibagikan kepada dosen dengan akses komentar) — tautan: [MKKL1031 — Jaringan UBBG Dua Gedung](https://docs.google.com/document/d/1krusm61k6EZOCbH7tlWy59acsWTg5411hK5TJ2IUZFU/edit)
 - Salinan di repository: [`docs/rencana-proyek.md`](docs/rencana-proyek.md)
+
+## Topologi
+
+![Topologi jaringan UBBG dua gedung](docs/gambar/diagram-topologi-dari-proposal.png)
+
+Kedua gedung dihubungkan **dua jalur**: jalur utama `10.0.0.0/30` dan jalur
+cadangan `172.16.30.0/30`.
+
+> **Catatan tentang gambar di atas:** diagram ini diambil dari dokumen proposal
+> dan masih menggambarkan 4 PC per gedung. Topologi yang benar-benar dibangun di
+> simulasi lebih besar — **8 PC per gedung (16 total)**. Jumlah VLAN, alamat,
+> dan jalurnya tetap sama. Diagram yang persis sama dengan simulasi dapat
+> diperoleh dengan membuka berkas `.pkt` langsung.
+>
+> Perbedaan lain: gambar menuliskan switch sebagai `2950-24`, sedangkan yang
+> dipakai pada simulasi adalah `2960-24TT`.
+
+Nilai tengah gambar untuk pembagian alamat:
+
+![Pembagian alamat VLSM](docs/gambar/diagram-vlsm-dari-proposal.png)
 
 ## Cara Menjalankan
 
 ### Kebutuhan
 
-- Cisco Packet Tracer (versi 8.x) untuk membuka berkas simulasi
+- Cisco Packet Tracer (diuji pada versi 9.0) untuk membuka berkas simulasi
 - Alternatif: GNS3 atau Mininet, dengan catatan konfigurasi perlu penyesuaian
 
 ### 1. Membuka simulasi
 
 Buka berkas di folder `simulation/` menggunakan Packet Tracer, lalu tunggu
-seluruh perangkat selesai memuat konfigurasi.
+seluruh perangkat selesai memuat konfigurasi (biasanya 1–2 menit).
 
 ### 2. Memeriksa pengalamatan
 
-Pada setiap PC, buka Command Prompt dan jalankan:
+Pada setiap PC, buka **Desktop > Command Prompt** dan jalankan:
 
 ```
 ipconfig /all
@@ -51,33 +71,34 @@ Alamat penting yang dipakai pada langkah berikutnya:
 
 | Perangkat | Alamat |
 |---|---|
-| Gerbang VLAN 10 (pendaftaran) | 192.168.10.1 |
-| Gerbang VLAN 20 (poliklinik) | 192.168.10.65 |
-| Server-Layanan | 192.168.10.242 |
+| Gerbang VLAN 10 (Kelas, Gedung A) | 192.168.10.1 |
+| Gerbang VLAN 20 (Laboratorium, Gedung A) | 192.168.10.65 |
+| Gerbang VLAN 99 (Tamu, Gedung A) | 192.168.10.113 |
+| Gerbang VLAN 11 (Kelas, Gedung B) | 192.168.11.1 |
+| Server UBBG | 192.168.10.146 |
 
 ### 3. Menguji konektivitas antar-VLAN
 
+Dari PC pada VLAN 10:
+
 ```
 ping 192.168.10.1        # gerbang VLAN sendiri
-ping 192.168.10.65       # gerbang VLAN lain (bukti inter-VLAN routing)
-ping 192.168.10.242      # Server-Layanan pada VLAN 100
-tracert 192.168.10.242   # harus melewati core switch
+ping 192.168.10.65       # VLAN lain di gedung yang sama
+ping 192.168.11.10       # PC di gedung lain
+ping 192.168.10.146      # Server UBBG
 ```
 
 ### 4. Menguji pembatasan akses tamu
 
-Dari PC pada VLAN tamu, akses ke jaringan medis harus gagal sementara akses
-ke internet tetap berjalan. Catat hasilnya pada `docs/pengujian.md`.
+Dari PC pada VLAN 99 (tamu), `ping 192.168.10.146` **harus gagal**. Dari PC
+internal pada VLAN yang sama-sama mengarah ke server, ping **harus berhasil**.
+Selisih hasil inilah yang membuktikan ACL bekerja.
 
-### 5. Menguji layanan server
+### 5. Menguji jalur cadangan
 
-```
-nslookup server.klinik.local      # penamaan internal
-buka http://web.klinik.local      # portal web
-ftp 192.168.10.242                # server berkas pencadangan
-```
-
-> Berkas simulasi ditambahkan setelah topologi selesai dikerjakan.
+Putuskan jalur utama (matikan `GigabitEthernet0/1` di R-GEDUNG-A), lalu ulangi
+ping antar-gedung dari PC0 ke PC8. Koneksi harus tetap jalan. Waktu perpindahan
+dicatat pada `docs/pengujian.md`.
 
 ## Struktur Repository
 
@@ -89,11 +110,10 @@ pkdj_2026_kelompok1_rancang_bangun_jaringan_ubbg/
 │   ├── pengalamatan-vlsm.md
 │   ├── konfigurasi.md
 │   ├── pengujian.md
-│   ├── diagrams/
-│   └── MKKL1031-Jaringan-Klinik-Kesehatan.docx
+│   └── gambar/
 ├── simulation/
 │   ├── README.md
-│   └── klinik-kesehatan.pkt   # berkas Cisco Packet Tracer
+│   └── jaringan-ubbg-dua-gedung.pkt   # berkas Cisco Packet Tracer
 └── src/
     └── configs/               # salinan konfigurasi tiap perangkat
 ```
@@ -104,16 +124,37 @@ pkdj_2026_kelompok1_rancang_bangun_jaringan_ubbg/
 |---|---|
 | `docs/rencana-proyek.md` | Rencana proyek, target UTS dan UAS, pembagian kerja per minggu, risiko |
 | `docs/pengalamatan-vlsm.md` | Tabel VLSM: alamat jaringan, alamat broadcast, dan rentang host per VLAN |
-| `docs/konfigurasi.md` | Konfigurasi router, core switch, access switch, dan server |
+| `docs/konfigurasi.md` | Konfigurasi router, multilayer switch, access switch, dan server |
 | `docs/pengujian.md` | Skenario pengujian dan tabel bukti konektivitas |
-| `docs/diagrams/` | Diagram topologi dan alur antar-VLAN |
+| `src/configs/` | Salinan `show running-config` tiap perangkat |
+
+## Status Pengujian
+
+Delapan skenario dari proposal sudah dijalankan. Tujuh terbukti, satu dilewati
+karena keterbatasan simulasi.
+
+| # | Skenario | Expected | Hasil | Status |
+|---|---|---|---|---|
+| 1 | Setiap PC memperoleh alamat sesuai tabel | Sesuai tabel | 16 PC terpasang alamat statis sesuai tabel | ✅ |
+| 2 | Komunikasi antar-VLAN dalam satu gedung | Balasan | PC0 → PC3 balasan 100% | ✅ |
+| 3 | PC Gedung B mengakses server Gedung A | Balasan | PC8 → 192.168.10.146 balasan 4/4 | ✅ |
+| 4 | Portal web server dapat dibuka | Halaman terbuka | PC0 dan PC8 membuka `http://192.168.10.146` | ✅ |
+| 5 | Tamu mengakses server | Ditolak | PC7 → server 0/4 (100% loss); PC0 → server 4/4 | ✅ |
+| 6 | Tamu memakai internet | Berhasil | — | ⬜ dilewati (butuh ISP, di luar batasan simulasi) |
+| 7 | Jalur utama putus, cadangan mengambil alih | Tetap tersambung | PC0 → PC8 tetap balasan 4/4 lewat jalur cadangan | ✅ |
+| 8 | Waktu perpindahan ke jalur cadangan | Diukur | Rute berpindah dalam ~2,5 detik (3 percobaan: 2,4 s / 2,5 s / 2,5 s) | ✅ |
+
+Tabel bukti lengkap beserta perintah pengujiannya ada di
+[`docs/pengujian.md`](docs/pengujian.md).
 
 ## Pemenuhan Ketentuan Mata Kuliah
 
-- **Topologi disimulasikan**: berkas simulasi disimpan pada repository dan dapat dijalankan.
+- **Topologi disimulasikan**: berkas `.pkt` tersimpan di `simulation/` dan sudah dijalankan.
 - **Skema pengalamatan lengkap**: VLSM dengan tabel alamat jaringan, alamat broadcast, dan rentang host.
-- **VLAN dan routing**: enam VLAN, inter-VLAN routing pada core switch, serta routing dinamis antar-perangkat.
-- **Layanan server diuji**: pengalamatan otomatis, penamaan internal, portal web, dan server berkas, seluruhnya dengan bukti pengujian.
+- **VLAN dan routing**: sembilan VLAN di dua gedung, inter-VLAN routing dijalankan, dan routing antar-gedung terpasang.
+- **Pembatasan akses**: ACL menolak jaringan tamu menuju zona server, dibuktikan dua arah.
+- **Jalur cadangan**: dua jalur antar-gedung dengan floating static, waktu perpindahan terukur.
+- **Layanan server diuji**: portal web dibuka dari kedua gedung dan dari VLAN berbeda.
 
 ## Aturan Kerja Kelompok
 
@@ -127,20 +168,8 @@ pkdj_2026_kelompok1_rancang_bangun_jaringan_ubbg/
 | Tahap | Target | Status |
 |---|---|---|
 | Pertemuan 2 | Rencana proyek, repository, undangan kolaborator | Selesai |
-| Pertemuan 8 (UTS) | Topologi dasar terbentuk dan seluruh VLAN dikonfigurasi pada switch | Belum dimulai |
-| Pertemuan 16 (UAS) | Model jaringan klinik lengkap dan dapat dijalankan pada perangkat lunak simulasi | Belum dimulai |
-
-Yang **sudah selesai di atas kertas**: tabel VLSM lengkap, konfigurasi tujuh
-perangkat, dan rencana pengujian sepuluh butir.
-
-Yang **wajib dikerjakan berikutnya** — semuanya butuh Cisco Packet Tracer:
-
-1. Bangun topologi di Packet Tracer, lalu **cocokkan nomor antarmuka** dengan
-   `src/configs/*.txt` (nomor di berkas masih contoh karena bergantung modul
-   yang dipasang).
-2. Simpan berkas simulasi ke `simulation/klinik-kesehatan.pkt`.
-3. Jalankan tabel pengujian di [`docs/pengujian.md`](docs/pengujian.md) dan isi
-   kolom bukti dengan tangkapan layar.
+| Pertemuan 8 (UTS) | Topologi dasar terbentuk dan seluruh VLAN dikonfigurasi pada switch | Selesai |
+| Pertemuan 16 (UAS) | Model jaringan lengkap dan dapat dijalankan pada perangkat lunak simulasi | Selesai — 7 dari 8 skenario terbukti |
 
 Alamat di seluruh berkas sudah diperiksa konsisten dengan
 [`docs/pengalamatan-vlsm.md`](docs/pengalamatan-vlsm.md).

@@ -1,0 +1,101 @@
+# ============================================================================
+# R-GEDUNG-A — Router tepi Gedung A (Cisco 2911)
+# MKKL1031 — Jaringan UBBG Dua Gedung
+#
+# Peran: menghubungkan Gedung A ke Gedung B, dan menjadi gerbang keluar
+#        seluruh VLAN di Gedung A (router-on-a-stick).
+#
+# Catatan penting: MLS-GEDUNG-A ternyata bertipe WS-C2960 sehingga TIDAK
+# mendukung `ip routing`. Inter-VLAN routing karena itu dipindahkan ke router
+# ini memakai sub-interface, bukan SVI di switch.
+#
+# Salinan ini diambil dari `show running-config` perangkat yang sudah berjalan
+# dan diuji di Packet Tracer.
+# ============================================================================
+
+Current configuration : 1618 bytes
+!
+version 15.1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname R-GEDUNG-A
+!
+ip cef
+no ipv6 cef
+!
+license udi pid CISCO2911/K9 sn FTX15247PD6-
+!
+spanning-tree mode pvst
+!
+interface GigabitEthernet0/0
+ description KE-MLS-GEDUNG-A
+ no ip address
+ duplex auto
+ speed auto
+!
+! ---- Router-on-a-stick: satu sub-interface per VLAN di Gedung A ----
+interface GigabitEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.192
+!
+interface GigabitEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.10.65 255.255.255.224
+!
+interface GigabitEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 192.168.10.97 255.255.255.240
+!
+! VLAN 99 = tamu. ACL 110 dipasang di sini, arah masuk.
+interface GigabitEthernet0/0.99
+ encapsulation dot1Q 99
+ ip address 192.168.10.113 255.255.255.240
+ ip access-group 110 in
+!
+interface GigabitEthernet0/0.100
+ encapsulation dot1Q 100
+ ip address 192.168.10.145 255.255.255.248
+!
+! ---- Jalur utama ke Gedung B ----
+interface GigabitEthernet0/1
+ description KE-R-GEDUNG-B
+ ip address 10.0.0.1 255.255.255.252
+ duplex auto
+ speed auto
+!
+! ---- Jalur cadangan ke Gedung B (dipakai saat G0/1 putus) ----
+interface GigabitEthernet0/2
+ ip address 172.16.30.1 255.255.255.252
+ duplex auto
+ speed auto
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip classless
+ip route 172.16.20.0 255.255.255.252 10.0.0.2
+ip route 192.168.11.0 255.255.255.0 10.0.0.2
+! Floating static: distance 200, jadi kalah prioritas dari rute di atas (distance 1).
+! Begitu G0/1 mati, rute ini yang dipakai.
+ip route 192.168.11.0 255.255.255.0 172.16.30.2 200
+!
+ip flow-export version 9
+!
+! ---- Pembatasan akses: tamu tidak boleh masuk zona server ----
+! Zona server = 192.168.10.144/29 (VLAN 100, tempat Server0 berada).
+! Tamu Gedung A = 192.168.10.112/28, tamu Gedung B = 192.168.11.112/28.
+access-list 110 deny ip 192.168.10.112 0.0.0.15 192.168.10.144 0.0.0.7
+access-list 110 deny ip 192.168.11.112 0.0.0.15 192.168.10.144 0.0.0.7
+access-list 110 permit ip any any
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+end

@@ -1,0 +1,119 @@
+# ============================================================================
+# MLS-GEDUNG-A — Multilayer Switch Gedung A (Cisco 3560-24PS)
+# MKKL1031 — Jaringan UBBG Dua Gedung
+#
+# PERAN PENTING: switch ini berfungsi sebagai **transit lapis dua murni**.
+# Awalnya dirancang sebagai pusat inter-VLAN routing (SVI + `ip routing`),
+# tetapi saat diuji di Packet Tracer model yang terpasang berperilaku seperti
+# WS-C2960 dan menolak `ip routing`. Karena itu seluruh SVI dihapus dan
+# inter-VLAN routing dipindahkan ke R-GEDUNG-A memakai router-on-a-stick.
+#
+# Akibatnya di sini TIDAK ADA SVI, dan tidak ada `ip route 0.0.0.0`.
+# Semua port menuju perangkat lain di-set trunk.
+#
+# Salinan ini diambil dari `show running-config` perangkat yang sudah berjalan
+# dan diuji di Packet Tracer.
+# ============================================================================
+
+Current configuration : 1627 bytes
+!
+version 12.2(37)SE1
+no service timestamps log datetime msec
+no service timestamps debug datetime msec
+no service password-encryption
+!
+hostname MLS-GEDUNG-A
+!
+no profinet
+!
+ip routing
+!
+no ip domain-lookup
+!
+spanning-tree mode pvst
+!
+! Fa0/1 = ke R-GEDUNG-A. Trunk, karena R-A memakai sub-interface (router-on-a-stick).
+interface FastEthernet0/1
+ switchport trunk allowed vlan 10,20,30,99-100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+! Fa0/2 = ke SW-A1
+interface FastEthernet0/2
+ switchport trunk allowed vlan 10,20,30,99-100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+! Fa0/3 = ke SW-A2
+interface FastEthernet0/3
+ switchport trunk allowed vlan 10,20,30,99-100
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+! Fa0/4 = access ke Server0 (VLAN 100)
+interface FastEthernet0/4
+ switchport access vlan 100
+ switchport mode access
+ spanning-tree portfast
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+!
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface FastEthernet0/13
+!
+interface FastEthernet0/14
+!
+interface FastEthernet0/15
+!
+interface FastEthernet0/16
+!
+interface FastEthernet0/17
+!
+interface FastEthernet0/18
+!
+interface FastEthernet0/19
+!
+interface FastEthernet0/20
+!
+interface FastEthernet0/21
+!
+interface FastEthernet0/22
+!
+interface FastEthernet0/23
+!
+interface FastEthernet0/24
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 172.16.10.1
+!
+ip flow-export version 9
+!
+line con 0
+!
+line aux 0
+!
+line vty 0 4
+ login
+!
+end
